@@ -8,6 +8,8 @@ const azureTS = require('azure-table-storage-async');
 const { ChoiceFactory, ChoicePrompt, TextPrompt, WaterfallDialog} = require('botbuilder-dialogs');
 
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
+const { DocsDialog, DOCS_DIALOG } = require('./DOCS');
+
 
 const CHOICE_PROMPT = "CHOICE_PROMPT";
 const TEXT_PROMPT = "TEXT_PROMPT";
@@ -16,7 +18,7 @@ const WATERFALL_DIALOG = "WATERFALL_DIALOG";
 class MainDialog extends CancelAndHelpDialog {
     constructor(id){
         super(id || 'mainbitDialog');
-
+        this.addDialog(new DocsDialog());
         this.addDialog(new TextPrompt(TEXT_PROMPT));
         this.addDialog(new ChoicePrompt(CHOICE_PROMPT));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
@@ -37,47 +39,50 @@ class MainDialog extends CancelAndHelpDialog {
     
     async infoConfirmStep(step) {
         console.log('[mainDialog]:infoConfirmStep <<inicia>>');
-        step.values.serie = step.result;
-        const rowkey = step.values.serie;
+        const details = step.options;
+        const str = step.result;
+        const serie = str.replace(/\s/g,'');
+        details.serie = serie;
+        const rowkey = details.serie;
     
         const query = new azurest.TableQuery().where('RowKey eq ?', rowkey);
-        const result = await azureTS.queryCustomAsync(tableSvc,config.table1, query);
+        const result = await azureTS.queryCustomAsync(tableSvc, config.table1, query);
     
         if (result[0] == undefined) {  
             console.log('[mainDialog]:infoConfirmStep <<request fail>>', rowkey);
             
-            await step.context.sendActivity(`La serie **${step.values.serie}** no se encontró en la base de datos, verifica la información y vuelve a intentarlo nuevamente.`); 
+            await step.context.sendActivity(`La serie **${details.serie}** no se encontró en la base de datos, verifica la información y vuelve a intentarlo nuevamente.`); 
             return await step.endDialog();
         } else {
             console.log('[mainDialog]:infoConfirmStep <<success>>');
             console.log(result[0].RowKey._);
             
             for (const r of result) {
-                config.proyecto =result[0].PartitionKey._;
-                config.serie =result[0].RowKey._; 
-                config.nombre =result[0].Nombre._;
-                config.puesto =result[0].Puesto._; 
-                config.telefono =result[0].Telefono._; 
-                config.ext =result[0].Ext._;
-                config.estado =result[0].Estado._;
-                config.municipio =result[0].Municipio._;
-                config.direccion =result[0].Domicilio._;
-                config.administrativa =result[0].UnidadAdminsitrativa._;
-                config.perfil =result[0].Perfil._;
-                // config.inmueble =result[0].._;
+                details.proyecto =result[0].PartitionKey._;
+                details.serie =result[0].RowKey._; 
+                details.nombre =result[0].Nombre._;
+                details.puesto =result[0].Puesto._; 
+                details.telefono =result[0].Telefono._; 
+                details.ext =result[0].Ext._;
+                details.estado =result[0].Estado._;
+                details.municipio =result[0].Municipio._;
+                details.direccion =result[0].Domicilio._;
+                details.administrativa =result[0].UnidadAdminsitrativa._;
+                details.perfil =result[0].Perfil._;
+                
                 
                 const msg=(`
-                **Proyecto:** ${config.proyecto}
-                \n\n **Número de Serie**: ${config.serie} 
-                \n\n **Nombre**: ${config.nombre} 
-                \n\n **Puesto:** ${config.puesto} 
-                \n\n **Teléfono:** ${config.telefono} 
-                \n\n **Extensión**: ${config.ext} 
-                \n\n **Estado:** ${config.estado}  
-                \n\n **Municipio:** ${config.municipio}  
-                \n\n **Dirección:** ${config.direccion} 
-                \n\n **Unidad de Administrativa:** ${config.administrativa} 
-                \n\n **Perfil:** ${config.perfil} 
+                **Proyecto:** ${details.proyecto}
+                \n\n **Número de Serie**: ${details.serie} 
+                \n\n **Nombre**: ${details.nombre} 
+                \n\n **Puesto:** ${details.puesto} 
+                \n\n **Teléfono:** ${details.telefono} 
+                \n\n **Extensión**: ${details.ext} 
+                \n\n **Estado:** ${details.estado}  
+                \n\n **Municipio:** ${details.municipio}  
+                \n\n **Dirección:** ${details.direccion} 
+                \n\n **Unidad de Administrativa:** ${details.administrativa} 
+                \n\n **Perfil:** ${details.perfil} 
                 `);
                 await step.context.sendActivity(msg);
                 return await step.prompt(CHOICE_PROMPT, {
@@ -112,13 +117,12 @@ class MainDialog extends CancelAndHelpDialog {
         async choiceDialog(step) {
             console.log('[mainDialog]:choiceDialog <<inicia>>');
             // console.log('result ?',step.result);
-    
+            const details = step.options;
             if (step.result === undefined) {
                 return await step.endDialog();
             } else {
-                const answer = step.result.value;
-                config.solicitud = {};
-                const sol = config.solicitud;
+                details.answer = step.result.value;
+                const answer = details.answer;
                 if (!step.result) {
                 }
                 if (!answer) {
@@ -128,17 +132,13 @@ class MainDialog extends CancelAndHelpDialog {
                     return await step.endDialog();
                 }
                 if (answer ==='Solicitar Formato de Resguardo') {
-                    sol.level1 = answer;
-                    await step.context.sendActivity(`Inicia diálogo para envío de formato.`); 
-                    return await step.endDialog();
-
                     
+                    await step.context.sendActivity(`Inicia diálogo para envío de formato.`); 
+                    return await step.endDialog();  
                 } 
                 if (answer ==='Enviar Resguardo firmado') {
-                    sol.level1 = answer;
-                    await step.context.sendActivity(`Inicia diálogo para envío de resguardo firmado.`); 
-                    return await step.endDialog();
-
+                    
+                    return await step.beginDialog(DOCS_DIALOG, details);
                 } 
         }
             console.log('[mainDialog]:choiceDialog<<termina>>');
