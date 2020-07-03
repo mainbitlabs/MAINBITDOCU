@@ -9,6 +9,7 @@ const { ChoiceFactory, ChoicePrompt, TextPrompt, WaterfallDialog} = require('bot
 
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DocsDialog, DOCS_DIALOG } = require('./DOCS');
+const { MailDialog, MAIL_DIALOG } = require('./MAIL');
 
 
 const CHOICE_PROMPT = "CHOICE_PROMPT";
@@ -18,6 +19,7 @@ const WATERFALL_DIALOG = "WATERFALL_DIALOG";
 class MainDialog extends CancelAndHelpDialog {
     constructor(id){
         super(id || 'mainbitDialog');
+        this.addDialog(new MailDialog());
         this.addDialog(new DocsDialog());
         this.addDialog(new TextPrompt(TEXT_PROMPT));
         this.addDialog(new ChoicePrompt(CHOICE_PROMPT));
@@ -97,6 +99,7 @@ class MainDialog extends CancelAndHelpDialog {
     async dispatcher(step) {
         console.log('[mainDialog]:dispatcher <<inicia>>');
         const selection = step.result.value;
+        const details = step.options;
         switch (selection) {
             
             case 'Sí':
@@ -107,10 +110,8 @@ class MainDialog extends CancelAndHelpDialog {
     
             case 'No':
                 await step.context.sendActivity(`Hemos terminado por ahora.`); 
-
-                return await step.endDialog();     
-                          
-              
+                return await step.beginDialog(MAIL_DIALOG, details);  
+                
         }
     }
     

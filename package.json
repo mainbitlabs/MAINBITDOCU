@@ -22,6 +22,7 @@
         "botbuilder-dialogs": "^4.9.2",
         "dotenv": "^8.2.0",
         "image-to-base64": "^2.1.0",
+        "nodejs-nodemailer-outlook": "^1.2.3",
         "restify": "~8.5.1"
     },
     "devDependencies": {
