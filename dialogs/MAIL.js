@@ -100,7 +100,7 @@ class MailDialog extends ComponentDialog {
 
         await email;
 
-        await step.context.sendActivity(`**Gracias por tu apoyo, se enviará un correo con tus datos**`);
+        await step.context.sendActivity(`**Gracias por su apoyo, en breve nuestro ingeniero se comunicará con usted.**`);
         await step.cancelAllDialogs();
         return await step.endDialog();
 

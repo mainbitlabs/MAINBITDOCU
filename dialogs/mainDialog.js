@@ -109,7 +109,7 @@ class MainDialog extends CancelAndHelpDialog {
                 });
     
             case 'No':
-                await step.context.sendActivity(`Hemos terminado por ahora.`); 
+                await step.context.sendActivity(`Por favor indica los siguientes datos.`); 
                 return await step.beginDialog(MAIL_DIALOG, details);  
                 
         }
