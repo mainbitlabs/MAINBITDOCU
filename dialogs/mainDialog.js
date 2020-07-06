@@ -10,6 +10,7 @@ const { ChoiceFactory, ChoicePrompt, TextPrompt, WaterfallDialog} = require('bot
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DocsDialog, DOCS_DIALOG } = require('./DOCS');
 const { MailDialog, MAIL_DIALOG } = require('./MAIL');
+const { ResguardoDialog, RESGUARDO_DIALOG } = require('./RESGUARDO');
 
 
 const CHOICE_PROMPT = "CHOICE_PROMPT";
@@ -20,6 +21,7 @@ class MainDialog extends CancelAndHelpDialog {
     constructor(id){
         super(id || 'mainbitDialog');
         this.addDialog(new MailDialog());
+        this.addDialog(new ResguardoDialog());
         this.addDialog(new DocsDialog());
         this.addDialog(new TextPrompt(TEXT_PROMPT));
         this.addDialog(new ChoicePrompt(CHOICE_PROMPT));
@@ -74,7 +76,7 @@ class MainDialog extends CancelAndHelpDialog {
                 
                 
                 const msg=(`
-                **Proyecto:** ${details.proyecto}
+                \n\n **Proyecto:** ${details.proyecto}
                 \n\n **Número de Serie**: ${details.serie} 
                 \n\n **Nombre**: ${details.nombre} 
                 \n\n **Puesto:** ${details.puesto} 
@@ -134,8 +136,9 @@ class MainDialog extends CancelAndHelpDialog {
                 }
                 if (answer ==='Solicitar Formato de Resguardo') {
                     
-                    await step.context.sendActivity(`Inicia diálogo para envío de formato.`); 
-                    return await step.endDialog();  
+                    // await step.context.sendActivity(`Inicia diálogo para envío de formato.`); 
+                    return await step.beginDialog(RESGUARDO_DIALOG, details);  
+
                 } 
                 if (answer ==='Enviar Resguardo firmado') {
                     
