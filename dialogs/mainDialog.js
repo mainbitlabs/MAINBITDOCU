@@ -107,7 +107,7 @@ class MainDialog extends CancelAndHelpDialog {
             case 'Sí':
                 return await step.prompt(CHOICE_PROMPT,{
                     prompt:'¿Que deseas realizar?',
-                    choices: ChoiceFactory.toChoices(['Solicitar Formato de Resguardo', 'Enviar Resguardo firmado'])
+                    choices: ChoiceFactory.toChoices(['Solicitar Resguardo', 'Enviar firmado'])
                 });
     
             case 'No':
@@ -134,13 +134,13 @@ class MainDialog extends CancelAndHelpDialog {
                         'so you can try again!');
                     return await step.endDialog();
                 }
-                if (answer ==='Solicitar Formato de Resguardo') {
+                if (answer ==='Solicitar Resguardo') {
                     
                     // await step.context.sendActivity(`Inicia diálogo para envío de formato.`); 
                     return await step.beginDialog(RESGUARDO_DIALOG, details);  
 
                 } 
-                if (answer ==='Enviar Resguardo firmado') {
+                if (answer ==='Enviar firmado') {
                     
                     return await step.beginDialog(DOCS_DIALOG, details);
                 } 
