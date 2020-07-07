@@ -64,6 +64,7 @@ class ResguardoDialog extends ComponentDialog {
                 
                 <p><b>Debes seguir las siguientes indicaciones: </b></p>
                 <ol>
+                    <li><b><a href="https://botdyesa01.blob.core.windows.net/mainbitdocsbl01/${details.serie}_PROFECO_RESGUARDO.pdf" download >Descargar formato aquí</a></b></li>
                     <li><b>Imprime</b> el formato adjunto</li>
                     <li><b>Revisa</b> que todos los datos sean correctos</li>
                     <li><b>Firma</b> en la parte correspondiente</li>
